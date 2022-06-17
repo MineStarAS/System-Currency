@@ -1,3 +1,3 @@
-rootProject.name = "MineCraftDefaultProject"
-include("MineStar-Plugin")
-include("MineStar-Plugin-API")
+rootProject.name = "System-Currency"
+include("MineStar-Currency")
+include("MineStar-Currency-API")

@@ -39,6 +39,6 @@ subprojects {
         //project_TL
 
         //MineStar
-        implementation("com.github.MineStarAS:Utility-API:1.0.0")
+        implementation("com.github.MineStarAS:Utility-API:1.0.8")
     }
 }
