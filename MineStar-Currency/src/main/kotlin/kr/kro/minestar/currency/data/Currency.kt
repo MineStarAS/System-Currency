@@ -1,12 +1,17 @@
 package kr.kro.minestar.currency.data
 
 import kr.kro.minestar.currency.exception.CurrencyException
+import kr.kro.minestar.currency.function.ConfigClass
 import kr.kro.minestar.currency.value.FolderValue
 import kr.kro.minestar.utility.collection.toStringList
+import kr.kro.minestar.utility.file.child
+import kr.kro.minestar.utility.item.clearDisplay
 import kr.kro.minestar.utility.item.display
+import kr.kro.minestar.utility.material.item
 import kr.kro.minestar.utility.string.remove
 import org.bukkit.Material
 import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.inventory.ItemStack
 import java.io.File
 
 class Currency {
@@ -28,20 +33,40 @@ class Currency {
             return false
         }
 
-        fun currencyList() = set.toList()
+        fun currencySet() = set.toSet()
         fun currencyUnitList() = set.toStringList()
+
+        fun loadCurrencies() {
+            val fileList = getCurrencyFolder().listFiles()
+
+            if (fileList == null || fileList.isEmpty()) {
+                val unit = ConfigClass().mainCurrencyUnit ?: "GOLD"
+                Currency(unit)
+                return
+            }
+
+            for (file in fileList) {
+                if (file.isDirectory) continue
+                if (!file.isFile) continue
+                if (!file.name.contains(".yml")) return
+
+                Currency(file)
+            }
+        }
+
+        fun getCurrencyFolder() = FolderValue.currencyFolder()
     }
 
     //화폐단위
     val unit: String
 
     //화폐 아이콘
-    private var icon: Icon
-    fun icon() = icon.item().display(unit)
-    internal fun icon(icon: Icon) {
+    private var icon: ItemStack
+    fun icon() = icon.display(unit)
+    internal fun icon(item: ItemStack) {
+        item.clearDisplay()
         val yaml = getCurrencyYaml()
-        yaml["icon.material"] = icon.material.name
-        yaml["icon.customModelData"] = icon.customModelData
+        yaml["icon"] = icon
         yaml.save()
     }
 
@@ -69,20 +94,20 @@ class Currency {
      */
     constructor(unit: String) {
         this.unit = unit
-        this.icon = Icon(Material.GOLD_INGOT, null)
+        this.icon = Material.GOLD_INGOT.item()
 
         val yaml = getCurrencyYaml()
+        yaml["unit"] = unit
         yaml["canPay"] = false
         yaml["canSend"] = false
-        yaml["icon.material"] = icon.material.name
-        yaml["icon.customModelData"] = icon.customModelData
+        yaml["icon"] = icon
 
         yaml.save()
         registerCurrency(this)
     }
 
     constructor(yamlFile: File) {
-        if (yamlFile.exists()) throw CurrencyException("The file does not exist.")
+        if (!yamlFile.exists()) throw CurrencyException("'${yamlFile.name}' file does not exist.")
         if (!yamlFile.name.contains(".yml")) throw CurrencyException("The file is not a YamlFile.")
 
         val yaml = YamlConfiguration.loadConfiguration(yamlFile)
@@ -92,15 +117,11 @@ class Currency {
         if (contains(unit)) throw CurrencyException("Currency of the same unit already exists.")
         this.unit = unit
 
-        val iconMaterial = Material.getMaterial(yaml.getString("icon.material") ?: Material.GOLD_INGOT.name) ?: Material.GOLD_INGOT
-        var iconCustomModelData : Int? = yaml.getInt("icon.customModelData")
-        if (iconCustomModelData == 0) iconCustomModelData = null
-
-        this.icon = Icon(iconMaterial, iconCustomModelData)
+        this.icon = yaml.getItemStack("icon") ?: Material.GOLD_INGOT.item()
+        registerCurrency(this)
     }
 
-
-    private fun getCurrencyFile() = File(FolderValue.currencyFolder, "$unit.yml")
+    private fun getCurrencyFile() = getCurrencyFolder().child("$unit.yml")
 
     private fun getCurrencyYaml() = YamlConfiguration.loadConfiguration(getCurrencyFile())
     private fun YamlConfiguration.save() = save(getCurrencyFile())

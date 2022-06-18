@@ -2,6 +2,8 @@ package kr.kro.minestar.currency
 
 import kr.kro.minestar.currency.Main.Companion.pl
 import kr.kro.minestar.currency.Main.Companion.prefix
+import kr.kro.minestar.currency.gui.CalculatorGUI
+import kr.kro.minestar.currency.gui.CurrenciesGUI
 import kr.kro.minestar.utility.command.Argument
 import kr.kro.minestar.utility.command.ArgumentPermission
 import kr.kro.minestar.utility.command.FunctionalCommand
@@ -31,7 +33,7 @@ object Command : FunctionalCommand {
         if (!arg.isValid(args)) return "$prefix §c${arg.howToUse(label)}".toPlayer(sender)
 
         when (arg) {
-            Arg.test -> {}
+            Arg.test -> CurrenciesGUI(sender)
             Arg.control -> {}
         }
         return

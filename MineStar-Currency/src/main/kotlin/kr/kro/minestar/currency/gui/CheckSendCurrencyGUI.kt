@@ -7,10 +7,7 @@ import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.Slot
-import kr.kro.minestar.utility.item.addLore
-import kr.kro.minestar.utility.item.clearLore
 import kr.kro.minestar.utility.item.display
-import kr.kro.minestar.utility.number.addComma
 import kr.kro.minestar.utility.string.toPlayer
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -19,29 +16,19 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
-class CurrencyGUI(override val player: Player, val currency: Currency) : GUI() {
+class CheckSendCurrencyGUI(
+    override val player: Player, val targetPlayer: Player,
+    private val currency: Currency, private val sandAmount: Long
+) : GUI() {
 
     private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        CURRENCY_AMOUNT(0, 4, Main.head.item(8902, Material.BLUE_CONCRETE).display("§6[보유 금액]")),
-        SEND_AMOUNT(0, 5, Main.head.item(40473, Material.BLUE_CONCRETE).display("§a[송금하기]")),
+        CANCEL(0, 2, Main.head.item(9382, Material.RED_CONCRETE).display("§c[취소]")),
+        SEND(0, 6, Main.head.item(21771, Material.LIME_CONCRETE).display("§a[송금]")),
         ;
     }
 
-    override val gui = InventoryUtil.gui(1, "$currency 정보")
     override val pl = Main.pl
-
-    private val playerPurse = PlayerPurse.getPlayerPurse(player)
-
-    private fun hasAmount() = this.playerPurse?.currencyAmount(currency) ?: 0
-
-    /**
-     * function
-     */
-    override fun displaying() {
-        gui.clear()
-        Button.CURRENCY_AMOUNT.item.clearLore().addLore("§e${hasAmount().addComma()} ${currency.unit}")
-        setItems(Button.values())
-    }
+    override val gui = InventoryUtil.gui(1, "송금 확인")
 
     @EventHandler
     override fun clickGUI(e: InventoryClickEvent) {
@@ -49,19 +36,23 @@ class CurrencyGUI(override val player: Player, val currency: Currency) : GUI() {
         if (e.inventory != gui) return
         e.isCancelled = true
 
+        val clickItem = e.currentItem ?: return
+
         if (e.clickedInventory != e.view.topInventory) return
         if (e.click != ClickType.LEFT) return
 
-        val clickItem = e.currentItem ?: return
-
         val slot = getSlot(clickItem, Button.values()) ?: return
-
         when (slot) {
-            Button.CURRENCY_AMOUNT -> {}
-            Button.SEND_AMOUNT -> {
-                if (!currency.canSend()) return "$prefix §c송금 할 수 없는 화폐입니다.".toPlayer(player)
-                PlayersGUI(player, currency, javaClass, CalculatorGUI::class.java)
+            Button.SEND -> {
+                val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return "$prefix §c자신의 지갑이 불러올 수 없습니다.".toPlayer(player)
+                playerPurse.currencyAmountSand(currency, sandAmount, targetPlayer, player.name)
             }
+            Button.CANCEL -> "$prefix §c송금을 취소 하였습니다.".toPlayer(player)
+        }
+
+        try {
+            player.closeInventory()
+        } catch (_: Exception) {
         }
     }
 

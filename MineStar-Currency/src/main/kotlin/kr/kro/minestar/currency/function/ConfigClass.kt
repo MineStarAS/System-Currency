@@ -13,7 +13,9 @@ class ConfigClass {
 
     private val config = YamlConfiguration.loadConfiguration(file)
 
-    val mainCurrency = Currency.getCurrency(config.getString("mainCurrency"))
+    val mainCurrencyUnit = config.getString("mainCurrency")
+    val mainCurrency = Currency.getCurrency(mainCurrencyUnit)
+
     val dataSaveFolder = when (config.getString("dataSaveFolder")) {
         null,
         "null",

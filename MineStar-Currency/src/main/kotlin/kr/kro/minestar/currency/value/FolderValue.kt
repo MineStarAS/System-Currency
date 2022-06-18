@@ -8,10 +8,10 @@ import java.io.File
 object FolderValue {
     private fun dataFolder() = ConfigClass().dataSaveFolder
 
-    private val playerFolder = File(dataFolder(), "player")
-    fun playerFolder (player: Player) = File(playerFolder, "${player.uniqueId}")
+    private val playerFolder = File(dataFolder(), "players").apply { if (!exists()) mkdir() }
+    fun playerFolder (player: Player) = File(playerFolder, "${player.uniqueId}").apply { if (!exists()) mkdir() }
 
-    val currencyFolder = File(dataFolder(), "currency")
+    fun currencyFolder() = File(dataFolder(), "currencies").apply { if (!exists()) mkdir() }
 
-    val totalLogFolder = File(dataFolder(), "totalLog")
+    fun totalLogFolder() = File(dataFolder(), "totalLog").apply { if (!exists()) mkdir() }
 }

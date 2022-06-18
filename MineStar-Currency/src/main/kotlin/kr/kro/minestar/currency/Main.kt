@@ -1,7 +1,10 @@
 package kr.kro.minestar.currency
 
+import kr.kro.minestar.currency.data.Currency
+import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.currency.function.event.Event
 import kr.kro.minestar.utility.item.Head
+import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
 class Main : JavaPlugin() {
@@ -18,9 +21,15 @@ class Main : JavaPlugin() {
 
         Event
 
-        println(javaClass.packageName)
+        Currency.loadCurrencies()
+
+        for (player in Bukkit.getOnlinePlayers()) PlayerPurse(player)
     }
 
     override fun onDisable() {
+        for (player in Bukkit.getOnlinePlayers()) try {
+            player.closeInventory()
+        } catch (_: Exception) {
+        }
     }
 }

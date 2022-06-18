@@ -1,6 +1,6 @@
-# 기본 화폐로 사용될 단위를 입력
-mainCurrency : 원
+# Enter the unit to be used as the default currency.
+mainCurrency : GOLD
 
-# "default" 또는 "null" 입력 시 플러그인 기본 데이터 폴더에 데이터 저장
-# path 값 입력 시 해당 폴더위치에 "currency" 폴더 생성 후 해당 폴더에 데이터 저장
+# Save data to plugin default data folder when "default" or "null" is input.
+# When entering the path value, create a "currency" folder in the folder location and save the data in the folder.
 dataSaveFolder : default
