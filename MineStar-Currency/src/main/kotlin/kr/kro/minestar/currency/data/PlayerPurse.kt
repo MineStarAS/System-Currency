@@ -3,6 +3,7 @@ package kr.kro.minestar.currency.data
 import kr.kro.minestar.currency.value.FolderValue
 import kr.kro.minestar.utility.bool.BooleanScript
 import kr.kro.minestar.utility.bool.addScript
+import kr.kro.minestar.utility.number.addComma
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
@@ -25,6 +26,7 @@ class PlayerPurse(val player: Player) {
 
     init {
         registerPlayerPurse(this)
+        for (currency in Currency.currencySet()) getCurrencyYaml(currency).save(currency)
     }
 
     //보유 금액
@@ -34,12 +36,12 @@ class PlayerPurse(val player: Player) {
     }
 
     //보유 금액 설정
-    fun currencyAmountSet(currency: Currency, amount: Long, cause: String) {
+    fun currencyAmountSet(currency: Currency, setAmount: Long, cause: String) {
         val yaml = getCurrencyYaml(currency)
 
-        yaml["amount"] = amount
+        yaml["amount"] = setAmount
         yaml.save(currency)
-        log(currency, "[$cause] Set $amount")
+        log(currency, "[$cause] Set ${setAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
     }
 
     //보유 금액 추가
@@ -51,7 +53,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Add $amount")
+        log(currency, "[$cause] Add ${addAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
     }
 
     //보유 금액 감가
@@ -66,7 +68,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Remove $amount")
+        log(currency, "[$cause] Remove ${removeAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
@@ -83,7 +85,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Pay $amount")
+        log(currency, "[$cause] Pay ${payAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
@@ -99,7 +101,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Earn $amount")
+        log(currency, "[$cause] Earn ${earnAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
@@ -121,7 +123,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Sand $amount to ${targetPlayer.name}(${targetPlayer.uniqueId})")
+        log(currency, "[$cause] Sand ${sandAmount.addComma()} to ${targetPlayer.name}(${targetPlayer.uniqueId}) [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
@@ -138,7 +140,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Receive $amount from ${sendPlayer.name}(${sendPlayer.uniqueId})")
+        log(currency, "[$cause] Receive ${receiveAmount.addComma()} from ${sendPlayer.name}(${sendPlayer.uniqueId}) [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
@@ -146,27 +148,27 @@ class PlayerPurse(val player: Player) {
      * Log function
      */
     private fun log(currency: Currency, logString: String) {
-        val yaml = getCurrencyYaml(currency)
+        val yaml = getCurrencyLogYaml(currency)
 
         var numberKey = 0
         fun key() = "${dateKey()}.$numberKey"
         while (yaml.contains(key())) numberKey++
 
         yaml[key()] = logString
-        yaml.save(currency)
+        yaml.logSave(currency)
         currencyLog(currency, logString)
     }
 
     private fun currencyLog(currency: Currency, logString: String) {
-        val file = File(FolderValue.totalLogFolder(), "$currency${dayDate()}")
+        val file = File(FolderValue.totalLogFolder(), "$currency-${dayDate()}.yml")
         val yaml = YamlConfiguration.loadConfiguration(file)
 
         var numberKey = 0
         fun key() = "${dateKey()}.$numberKey"
         while (yaml.contains(key())) numberKey++
 
-        yaml[key()] = "<$player(${player.uniqueId})> $logString"
-        yaml.save(currency)
+        yaml[key()] = "<${player.name} (${player.uniqueId})> $logString"
+        yaml.save(file)
     }
 
     private fun dayDate(): String {
@@ -185,16 +187,20 @@ class PlayerPurse(val player: Player) {
     private fun getCurrencyFile(currency: Currency) = File(FolderValue.playerFolder(player), "$currency.yml").apply {
         if (!exists()) {
             val yaml = YamlConfiguration.loadConfiguration(this)
-            yaml["amount"] = 0
+            yaml["amount"] = 0L
+            yaml.save(this)
+        }
+    }
+    private fun getCurrencyLogFile(currency: Currency) = File(FolderValue.playerFolder(player), "$currency-log.yml").apply {
+        if (!exists()) {
+            val yaml = YamlConfiguration.loadConfiguration(this)
             yaml.save(this)
         }
     }
 
-    fun getCurrencyYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyFile(currency))
+    private fun getCurrencyYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyFile(currency))
+    fun getCurrencyLogYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyLogFile(currency))
 
     private fun YamlConfiguration.save(currency: Currency) = save(getCurrencyFile(currency))
-
-    init {
-        for (currency in Currency.currencySet()) getCurrencyYaml(currency).save(currency)
-    }
+    private fun YamlConfiguration.logSave(currency: Currency) = save(getCurrencyLogFile(currency))
 }

@@ -47,7 +47,7 @@ class PlayerPurseGUI(override val player: Player) : GUI() {
 
             item.display("§e[ §f$currency §e]")
             item.addLore(" ")
-            item.addLore("§6[보유금액] §e${amount.addComma()} $currency")
+            item.addLore("§6[§f보유금액§6] §f${amount.addComma()} §e$currency")
             item.addLore(" ")
             item.addLore("§7[좌클릭] 송금하기")
             item.addLore("§7[쉬프트 좌클릭] 기록보기")

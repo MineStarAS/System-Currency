@@ -41,7 +41,7 @@ class Currency {
 
             if (fileList == null || fileList.isEmpty()) {
                 val unit = ConfigClass().mainCurrencyUnit ?: "GOLD"
-                Currency(unit)
+                Currency(unit, canPay = true, canSend = true)
                 return
             }
 
@@ -62,7 +62,7 @@ class Currency {
 
     //화폐 아이콘
     private var icon: ItemStack
-    fun icon() = icon.display(unit)
+    fun icon() = icon.display(unit).clone()
     internal fun icon(item: ItemStack) {
         item.clearDisplay()
         val yaml = getCurrencyYaml()
@@ -100,6 +100,20 @@ class Currency {
         yaml["unit"] = unit
         yaml["canPay"] = false
         yaml["canSend"] = false
+        yaml["icon"] = icon
+
+        yaml.save()
+        registerCurrency(this)
+    }
+
+    constructor(unit: String, canPay: Boolean, canSend: Boolean) {
+        this.unit = unit
+        this.icon = Material.GOLD_INGOT.item()
+
+        val yaml = getCurrencyYaml()
+        yaml["unit"] = unit
+        yaml["canPay"] = canPay
+        yaml["canSend"] = canSend
         yaml["icon"] = icon
 
         yaml.save()

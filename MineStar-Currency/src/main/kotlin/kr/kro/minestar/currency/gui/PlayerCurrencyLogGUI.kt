@@ -7,8 +7,10 @@ import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.*
 import kr.kro.minestar.utility.material.item
+import kr.kro.minestar.utility.string.toPlayer
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
@@ -18,7 +20,7 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
     private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
         PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
         NEXT_PAGE(5, 8, Main.head.item(11504, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
-        PAGE_NUMBER(5, 9, Main.head.item(8899, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
+        PAGE_NUMBER(5, 4, Main.head.item(8899, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
         ;
     }
 
@@ -31,7 +33,7 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
     private fun dayKeys(): Set<String> {
 
         val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return setOf()
-        val keys = playerPurse.getCurrencyYaml(currency).getKeys(false)
+        val keys = playerPurse.getCurrencyLogYaml(currency).getKeys(false)
 
         keys.remove("amount")
 
@@ -41,9 +43,9 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
     private fun timeKeys(dayKey: String): Set<String> {
         val timeKeys = mutableListOf<String>()
         val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return setOf()
-        val keys = playerPurse.getCurrencyYaml(currency).getKeys(true)
+        val keys = playerPurse.getCurrencyLogYaml(currency).getKeys(true)
 
-        for (key in keys) if (key.contains(dayKey)) timeKeys.add(key)
+        for (key in keys) if (key.contains(dayKey)) if (key.split('.').size == 3) timeKeys.add(key)
 
         return timeKeys.toSet()
     }
@@ -87,17 +89,19 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
             val timeKeys = timeKeys(dayKey)
 
             val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return
-            val yaml = playerPurse.getCurrencyYaml(currency)
+            val yaml = playerPurse.getCurrencyLogYaml(currency)
 
             for (key in timeKeys) {
                 val log = yaml.getString(key) ?: continue
-                item.addLore("$key : $log")
+                item.addLore("[${key.split('.')[1]}]")
+                item.addLore(log)
             }
 
             gui.setItem(slot, item)
         }
     }
 
+    @EventHandler
     override fun clickGUI(e: InventoryClickEvent) {
         if (e.whoClicked != player) return
         if (e.inventory != gui) return
@@ -128,7 +132,15 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
 
             Button.PAGE_NUMBER -> {}
 
-            null -> {}
+            null -> {
+                clickItem.display().toPlayer(player)
+
+                val loreList = clickItem.lore ?: return
+                for (lore in loreList) {
+                    lore ?: continue
+                    lore.toPlayer(player)
+                }
+            }
         }
     }
     init {

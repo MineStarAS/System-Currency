@@ -74,18 +74,26 @@ class CheckGUI(
                     ProcessType.SEND -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return "$prefix §c자신의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountSand(currency, processAmount, targetPlayer, player.name)
+                        "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 보냈습니다.".toPlayer(player)
+                        "$prefix §e${player.name} §f님으로부터 §e${processAmount.addComma()} §6$currency §f을/를 받습니다.".toPlayer(targetPlayer)
                     }
                     ProcessType.SET -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountSet(currency, processAmount, player.name)
+                        "$prefix §e${targetPlayer.name} §f님의 보유금액을 §e${processAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".toPlayer(player)
+                        "$prefix §e${player.name} §f님이 보유금액을 §e${processAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".toPlayer(targetPlayer)
                     }
                     ProcessType.ADD -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountAdd(currency, processAmount, player.name)
+                        "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".toPlayer(player)
+                        "$prefix §e${player.name} §f님이 §e${processAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".toPlayer(targetPlayer)
                     }
                     ProcessType.REMOVE -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountRemove(currency, processAmount, player.name)
+                        "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".toPlayer(player)
+                        "$prefix §e${player.name} §f님이 §e${processAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".toPlayer(targetPlayer)
                     }
                 }
             }
