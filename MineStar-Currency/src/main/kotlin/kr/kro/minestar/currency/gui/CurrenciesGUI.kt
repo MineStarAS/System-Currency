@@ -4,6 +4,7 @@ import kr.kro.minestar.currency.Main
 import kr.kro.minestar.currency.data.Currency
 import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.currency.function.ConfigClass
+import kr.kro.minestar.currency.value.PermissionValue
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.addPrefix
@@ -15,7 +16,10 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 
-class CurrenciesGUI(override val player: Player) : GUI() {
+class CurrenciesGUI(override val player: Player, private val controlType: ControlType) : GUI() {
+    enum class ControlType {
+        USER, ADMIN
+    }
 
     private fun currencies(): Set<Currency> {
         val set = hashSetOf<Currency>()
@@ -28,7 +32,7 @@ class CurrenciesGUI(override val player: Player) : GUI() {
     private fun guiLineAmount() = currencies().size / 9 + 1
 
     private val playerPurse = PlayerPurse.getPlayerPurse(player)
-    override val gui = InventoryUtil.gui(guiLineAmount(), "${player.name}의 지갑")
+    override val gui = InventoryUtil.gui(guiLineAmount(), "화폐 목록")
     override val pl = Main.pl
 
     /**
@@ -54,7 +58,11 @@ class CurrenciesGUI(override val player: Player) : GUI() {
         val clickItem = e.currentItem ?: return
 
         val currency = Currency.getCurrency(clickItem.display().unColor()) ?: return
-        CurrencyGUI(player, currency)
+        when (controlType) {
+            ControlType.USER -> CurrencyGUI(player, currency)
+            ControlType.ADMIN -> {
+            }
+        }
     }
 
     init {
