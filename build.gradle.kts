@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.7.0"
+    kotlin("jvm") version "1.6.10"
     id("com.github.johnrengelman.shadow") version "7.1.0"
     `maven-publish`
 }
@@ -39,8 +39,8 @@ subprojects {
         //project_TL
 
         //MineStar
-        implementation("com.github.MineStarAS:Utility-API:1.1.1")
+        implementation("com.github.MineStarAS:Utility-API:1.1.2")
 
-//        implementation(files("C:\\Users\\MineStar\\Desktop\\MC Server folder\\libs\\Utility-API-1.1.0.jar"))
+//        implementation(files("C:\\Users\\MineStar\\Desktop\\MC Server folder\\libs\\Utility-API-1.1.1.jar"))
     }
 }

@@ -1,43 +1,53 @@
 package kr.kro.minestar.currency.gui
 
 import kr.kro.minestar.currency.Main
-import kr.kro.minestar.currency.Main.Companion.head
-import kr.kro.minestar.currency.Main.Companion.prefix
 import kr.kro.minestar.currency.data.Currency
+import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
-import kr.kro.minestar.utility.item.Slot
-import kr.kro.minestar.utility.item.amount
-import kr.kro.minestar.utility.item.display
-import kr.kro.minestar.utility.string.toPlayer
-import org.bukkit.Bukkit
+import kr.kro.minestar.utility.item.*
+import kr.kro.minestar.utility.material.item
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.SkullMeta
 
-class PlayersGUI(
-    override val player: Player, private val currency: Currency, private val backGUI: Class<out GUI>
-) : GUI() {
+class PlayerCurrencyLogGUI(override val player: Player, private val currency: Currency) : GUI() {
 
     private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        PREVIOUS_PAGE(5, 0, head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
-        NEXT_PAGE(5, 8, head.item(11504, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
-        PAGE_NUMBER(5, 4, head.item(8899, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
+        PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
+        NEXT_PAGE(5, 8, Main.head.item(11504, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
+        PAGE_NUMBER(5, 9, Main.head.item(8899, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
         ;
     }
 
-    override val gui = InventoryUtil.gui(6, "${player.name}의 지갑")
     override val pl = Main.pl
-
-    private fun players() = Bukkit.getOnlinePlayers().toList()
+    override val gui = InventoryUtil.gui(6, "${player.name} $currency 기록")
 
     /**
      * Page function
      */
+    private fun dayKeys(): Set<String> {
+
+        val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return setOf()
+        val keys = playerPurse.getCurrencyYaml(currency).getKeys(false)
+
+        keys.remove("amount")
+
+        return keys.toSet()
+    }
+
+    private fun timeKeys(dayKey: String): Set<String> {
+        val timeKeys = mutableListOf<String>()
+        val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return setOf()
+        val keys = playerPurse.getCurrencyYaml(currency).getKeys(true)
+
+        for (key in keys) if (key.contains(dayKey)) timeKeys.add(key)
+
+        return timeKeys.toSet()
+    }
+
     private var page = 0
 
     private fun pageSection(): Pair<Int, Int> {
@@ -47,7 +57,7 @@ class PlayersGUI(
         return Pair(first, second)
     }
 
-    private fun isOverNumber() = players().size > pageSection().first
+    private fun isOverNumber() = dayKeys().size > pageSection().first
 
     /**
      * function
@@ -55,8 +65,12 @@ class PlayersGUI(
     override fun displaying() {
         gui.clear()
         setItems(Button.values())
+
+        val logItem = Material.MOJANG_BANNER_PATTERN.item().flagAll()
+
         val pageSection = pageSection()
-        val players = players()
+        val dayKeys = dayKeys().toList()
+        if (dayKeys.isEmpty()) return
 
         if (page < 64) {
             val slot = Button.PAGE_NUMBER
@@ -65,13 +79,25 @@ class PlayersGUI(
         }
 
         for ((slot, index) in (pageSection.first..pageSection.second).withIndex()) {
-            if (players.size <= index) break
-            val player = players[index]
-            gui.setItem(slot, head.item(player).display(player.name))
+            if (dayKeys.size <= index) break
+            val item = logItem.clone()
+            val dayKey = dayKeys[index]
+            item.display(dayKey)
+
+            val timeKeys = timeKeys(dayKey)
+
+            val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return
+            val yaml = playerPurse.getCurrencyYaml(currency)
+
+            for (key in timeKeys) {
+                val log = yaml.getString(key) ?: continue
+                item.addLore("$key : $log")
+            }
+
+            gui.setItem(slot, item)
         }
     }
 
-    @EventHandler
     override fun clickGUI(e: InventoryClickEvent) {
         if (e.whoClicked != player) return
         if (e.inventory != gui) return
@@ -102,23 +128,9 @@ class PlayersGUI(
 
             Button.PAGE_NUMBER -> {}
 
-            null -> {
-                if (clickItem.type != Material.PLAYER_HEAD) return
-                val meta = clickItem.itemMeta
-                if (meta !is SkullMeta) return
-                val playerUUID = meta.owningPlayer?.uniqueId ?: return
-                val targetPlayer = Bukkit.getPlayer(playerUUID) ?: return
-
-                if (!targetPlayer.isOnline) return "$prefix §c해당 플레이어는 오프라인 상태 입니다.".toPlayer(player)
-
-                when (backGUI) {
-                    PlayerPurseGUI::class.java -> CalculatorGUI(player, targetPlayer, currency, ProcessType.SEND)
-                    CurrenciesGUI::class.java -> PlayerCurrencyControlGUI(player, targetPlayer, currency)
-                }
-            }
+            null -> {}
         }
     }
-
     init {
         openGUI()
     }

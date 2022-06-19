@@ -23,6 +23,10 @@ class PlayerPurse(val player: Player) {
 
     }
 
+    init {
+        registerPlayerPurse(this)
+    }
+
     //보유 금액
     fun currencyAmount(currency: Currency): Long {
         val yaml = getCurrencyYaml(currency)
@@ -186,7 +190,7 @@ class PlayerPurse(val player: Player) {
         }
     }
 
-    private fun getCurrencyYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyFile(currency))
+    fun getCurrencyYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyFile(currency))
 
     private fun YamlConfiguration.save(currency: Currency) = save(getCurrencyFile(currency))
 

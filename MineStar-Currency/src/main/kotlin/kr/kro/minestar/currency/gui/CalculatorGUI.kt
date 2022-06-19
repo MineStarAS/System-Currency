@@ -9,6 +9,7 @@ import kr.kro.minestar.utility.item.Slot
 import kr.kro.minestar.utility.item.display
 import kr.kro.minestar.utility.number.addComma
 import kr.kro.minestar.utility.string.unColor
+import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.ClickType
@@ -17,54 +18,54 @@ import org.bukkit.inventory.ItemStack
 
 class CalculatorGUI(
     override val player: Player, private val targetPlayer: Player,
-    private val currency: Currency, private val nextGUI: Class<out GUI>
+    private val currency: Currency, private val processType: ProcessType
 ) : GUI() {
 
     private enum class DisplayNumber(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        NUMBER_0(0, 0, head.item(9271).display("0")),
-        NUMBER_1(0, 0, head.item(9270).display("1")),
-        NUMBER_2(0, 0, head.item(9269).display("2")),
-        NUMBER_3(0, 0, head.item(9268).display("3")),
-        NUMBER_4(0, 0, head.item(9267).display("4")),
-        NUMBER_5(0, 0, head.item(9266).display("5")),
-        NUMBER_6(0, 0, head.item(9265).display("6")),
-        NUMBER_7(0, 0, head.item(9264).display("7")),
-        NUMBER_8(0, 0, head.item(9263).display("8")),
-        NUMBER_9(0, 0, head.item(9262).display("9")),
-        NUMBER_NULL(0, 0, head.item(9243).display("-")),
-        NUMBER_OVER(0, 0, head.item(9236).display(" ")),
+        NUMBER_0(0, 0, head.item(9271, Material.WHITE_CONCRETE).display("0")),
+        NUMBER_1(0, 0, head.item(9270, Material.WHITE_CONCRETE).display("1")),
+        NUMBER_2(0, 0, head.item(9269, Material.WHITE_CONCRETE).display("2")),
+        NUMBER_3(0, 0, head.item(9268, Material.WHITE_CONCRETE).display("3")),
+        NUMBER_4(0, 0, head.item(9267, Material.WHITE_CONCRETE).display("4")),
+        NUMBER_5(0, 0, head.item(9266, Material.WHITE_CONCRETE).display("5")),
+        NUMBER_6(0, 0, head.item(9265, Material.WHITE_CONCRETE).display("6")),
+        NUMBER_7(0, 0, head.item(9264, Material.WHITE_CONCRETE).display("7")),
+        NUMBER_8(0, 0, head.item(9263, Material.WHITE_CONCRETE).display("8")),
+        NUMBER_9(0, 0, head.item(9262, Material.WHITE_CONCRETE).display("9")),
+        NUMBER_NULL(0, 0, head.item(9243, Material.WHITE_CONCRETE).display("-")),
+        NUMBER_OVER(0, 0, head.item(9236, Material.WHITE_CONCRETE).display(" ")),
     }
 
     private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        NUMBER_1(2, 3, head.item(8813).display("1")),
-        NUMBER_2(2, 4, head.item(8812).display("2")),
-        NUMBER_3(2, 5, head.item(8811).display("3")),
-        NUMBER_4(3, 3, head.item(8810).display("4")),
-        NUMBER_5(3, 4, head.item(8809).display("5")),
-        NUMBER_6(3, 5, head.item(8808).display("6")),
-        NUMBER_7(4, 3, head.item(8807).display("7")),
-        NUMBER_8(4, 4, head.item(8806).display("8")),
-        NUMBER_9(4, 5, head.item(8805).display("9")),
-        NUMBER_0(5, 4, head.item(8814).display("0")),
+        NUMBER_1(2, 3, head.item(8813, Material.BLACK_CONCRETE).display("1")),
+        NUMBER_2(2, 4, head.item(8812, Material.BLACK_CONCRETE).display("2")),
+        NUMBER_3(2, 5, head.item(8811, Material.BLACK_CONCRETE).display("3")),
+        NUMBER_4(3, 3, head.item(8810, Material.BLACK_CONCRETE).display("4")),
+        NUMBER_5(3, 4, head.item(8809, Material.BLACK_CONCRETE).display("5")),
+        NUMBER_6(3, 5, head.item(8808, Material.BLACK_CONCRETE).display("6")),
+        NUMBER_7(4, 3, head.item(8807, Material.BLACK_CONCRETE).display("7")),
+        NUMBER_8(4, 4, head.item(8806, Material.BLACK_CONCRETE).display("8")),
+        NUMBER_9(4, 5, head.item(8805, Material.BLACK_CONCRETE).display("9")),
+        NUMBER_0(5, 4, head.item(8814, Material.BLACK_CONCRETE).display("0")),
 
-        DIVISION(2, 6, head.item(8907).display("§9÷")),
-        MULTIPLY(3, 6, head.item(8950).display("§9x")),
-        MINUS(4, 6, head.item(8919).display("§9-")),
-        PLUS(5, 6, head.item(8913).display("§9+")),
+        DIVISION(2, 6, head.item(8907, Material.BLUE_CONCRETE).display("§9÷")),
+        MULTIPLY(3, 6, head.item(8950, Material.BLUE_CONCRETE).display("§9x")),
+        MINUS(4, 6, head.item(8919, Material.BLUE_CONCRETE).display("§9-")),
+        PLUS(5, 6, head.item(8913, Material.BLUE_CONCRETE).display("§9+")),
 
-        BACK_SPACE(3, 7, head.item(9334).display("§cBackSpace")),
-        CLEAR(4, 7, head.item(9403).display("§cClear")),
+        BACK_SPACE(3, 7, head.item(9334, Material.RED_CONCRETE).display("§cBackSpace")),
+        CLEAR(4, 7, head.item(9403, Material.RED_CONCRETE).display("§cClear")),
 
-        CALCULATE(5, 7, head.item(9889).display("§a=")),
-        COMPLETE(5, 8, head.item(21771).display("§aComplete")),
+        CALCULATE(5, 7, head.item(9889, Material.LIME_CONCRETE).display("§a=")),
+        COMPLETE(5, 8, head.item(21771, Material.LIME_CONCRETE).display("§aComplete")),
     }
 
     private enum class Operation(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        BLANK(2, 0, head.item(13394).display(" ")),
-        PLUS(2, 0, head.item(10101).display("§b+")),
-        MINUS(2, 0, head.item(10107).display("§b-")),
-        MULTIPLY(2, 0, head.item(10138).display("§bx")),
-        DIVISION(2, 0, head.item(10095).display("§b÷")),
+        BLANK(2, 0, head.item(13394, Material.LIGHT_BLUE_CONCRETE).display(" ")),
+        PLUS(2, 0, head.item(10101, Material.LIGHT_BLUE_CONCRETE).display("§b+")),
+        MINUS(2, 0, head.item(10107, Material.LIGHT_BLUE_CONCRETE).display("§b-")),
+        MULTIPLY(2, 0, head.item(10138, Material.LIGHT_BLUE_CONCRETE).display("§bx")),
+        DIVISION(2, 0, head.item(10095, Material.LIGHT_BLUE_CONCRETE).display("§b÷")),
     }
 
     override val pl = Main.pl
@@ -201,9 +202,7 @@ class CalculatorGUI(
     }
 
     private fun complete() {
-        when (nextGUI) {
-            CheckSendCurrencyGUI::class.java -> CheckSendCurrencyGUI(player, targetPlayer, currency, currentLong)
-        }
+        CheckGUI(player, targetPlayer, currency, currentLong, processType)
     }
 
     init {

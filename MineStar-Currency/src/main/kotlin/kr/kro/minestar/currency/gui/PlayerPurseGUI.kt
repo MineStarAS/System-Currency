@@ -12,13 +12,14 @@ import kr.kro.minestar.utility.item.display
 import kr.kro.minestar.utility.number.addComma
 import kr.kro.minestar.utility.string.remove
 import kr.kro.minestar.utility.string.toPlayer
+import kr.kro.minestar.utility.string.toServer
 import kr.kro.minestar.utility.string.unColor
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 
-class CurrenciesGUI(override val player: Player) : GUI() {
+class PlayerPurseGUI(override val player: Player) : GUI() {
 
     private fun currencies(): Set<Currency> {
         val set = hashSetOf<Currency>()
@@ -45,6 +46,11 @@ class CurrenciesGUI(override val player: Player) : GUI() {
             val amount = playerPurse?.currencyAmount(currency) ?: 0
 
             item.display("§e[ §f$currency §e]")
+            item.addLore(" ")
+            item.addLore("§6[보유금액] §e${amount.addComma()} $currency")
+            item.addLore(" ")
+            item.addLore("§7[좌클릭] 송금하기")
+            item.addLore("§7[쉬프트 좌클릭] 기록보기")
 
             gui.setItem(slot, item)
         }
@@ -57,14 +63,21 @@ class CurrenciesGUI(override val player: Player) : GUI() {
         e.isCancelled = true
 
         if (e.clickedInventory != e.view.topInventory) return
-        if (e.click != ClickType.LEFT) return
 
         val clickItem = e.currentItem ?: return
         val display = clickItem.display().unColor().remove("[ ").remove(" ]")
 
         val currency = Currency.getCurrency(display) ?: return
 
-        PlayersGUI(player, currency, javaClass)
+        when(e.click) {
+            ClickType.LEFT -> {
+                if (!currency.canSend()) return "${Main.prefix} §c송금 할 수 없는 화폐입니다.".toPlayer(player)
+                PlayersGUI(player, currency, javaClass)
+            }
+            ClickType.SHIFT_LEFT -> PlayerCurrencyLogGUI(player, currency)
+
+            else -> return
+        }
     }
 
     init {
