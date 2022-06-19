@@ -96,7 +96,8 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
                 item.addLore("[${key.split('.')[1]}]")
                 item.addLore(log)
             }
-
+            //TODO 송금,입금 로그 표시 안되는 버그 있음
+            //TODO 로그 기록은 잘 됨
             gui.setItem(slot, item)
         }
     }
