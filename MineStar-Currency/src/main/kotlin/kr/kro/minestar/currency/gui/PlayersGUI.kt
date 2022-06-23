@@ -2,13 +2,13 @@ package kr.kro.minestar.currency.gui
 
 import kr.kro.minestar.currency.Main
 import kr.kro.minestar.currency.Main.Companion.head
-import kr.kro.minestar.currency.Main.Companion.prefix
 import kr.kro.minestar.currency.data.Currency
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.Slot
 import kr.kro.minestar.utility.item.amount
 import kr.kro.minestar.utility.item.display
+import kr.kro.minestar.utility.string.script
 import kr.kro.minestar.utility.string.toPlayer
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -31,7 +31,7 @@ class PlayersGUI(
     }
 
     override val gui = InventoryUtil.gui(6, "${player.name}의 지갑")
-    override val pl = Main.pl
+    override val plugin = Main.plugin
 
     private fun players() = Bukkit.getOnlinePlayers().toList()
 
@@ -109,7 +109,7 @@ class PlayersGUI(
                 val playerUUID = meta.owningPlayer?.uniqueId ?: return
                 val targetPlayer = Bukkit.getPlayer(playerUUID) ?: return
 
-                if (!targetPlayer.isOnline) return "$prefix §c해당 플레이어는 오프라인 상태 입니다.".toPlayer(player)
+                if (!targetPlayer.isOnline) return "§c해당 플레이어는 오프라인 상태 입니다.".script(plugin.prefix).toPlayer(player)
 
                 when (backGUI) {
                     PlayerPurseGUI::class.java -> CalculatorGUI(player, targetPlayer, currency, ProcessType.SEND)

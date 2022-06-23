@@ -10,6 +10,7 @@ import kr.kro.minestar.utility.item.addLore
 import kr.kro.minestar.utility.item.display
 import kr.kro.minestar.utility.number.addComma
 import kr.kro.minestar.utility.string.remove
+import kr.kro.minestar.utility.string.script
 import kr.kro.minestar.utility.string.toPlayer
 import kr.kro.minestar.utility.string.unColor
 import org.bukkit.entity.Player
@@ -31,7 +32,7 @@ class PlayerPurseGUI(override val player: Player) : GUI() {
 
     private val playerPurse = PlayerPurse.getPlayerPurse(player)
     override val gui = InventoryUtil.gui(guiLineAmount(), "화폐 목록")
-    override val pl = Main.pl
+    override val plugin = Main.plugin
 
     /**
      * function
@@ -69,7 +70,7 @@ class PlayerPurseGUI(override val player: Player) : GUI() {
 
         when(e.click) {
             ClickType.LEFT -> {
-                if (!currency.canSend()) return "${Main.prefix} §c송금 할 수 없는 화폐입니다.".toPlayer(player)
+                if (!currency.canSend()) return "§c송금 할 수 없는 화폐입니다.".script(plugin.prefix).toPlayer(player)
                 PlayersGUI(player, currency, javaClass)
             }
             ClickType.SHIFT_LEFT -> PlayerCurrencyLogListGUI(player, currency)

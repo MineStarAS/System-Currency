@@ -68,7 +68,7 @@ class CalculatorGUI(
         DIVISION(2, 0, head.item(10095, Material.LIGHT_BLUE_CONCRETE).display("§b÷")),
     }
 
-    override val pl = Main.pl
+    override val plugin = Main.plugin
     override val gui = InventoryUtil.gui(6, "금액 입력")
 
     private var currentLong = 0L

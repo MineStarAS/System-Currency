@@ -24,7 +24,7 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
         ;
     }
 
-    override val pl = Main.pl
+    override val plugin = Main.plugin
     override val gui = InventoryUtil.gui(6, "$currency $dayKey 기록")
 
     /**

@@ -28,7 +28,7 @@ class CurrenciesGUI(override val player: Player) : GUI() {
 
     private val playerPurse = PlayerPurse.getPlayerPurse(player)
     override val gui = InventoryUtil.gui(guiLineAmount(), "화폐 목록")
-    override val pl = Main.pl
+    override val plugin = Main.plugin
 
     /**
      * function

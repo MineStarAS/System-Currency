@@ -39,16 +39,22 @@ class PlayerPurse(val player: Player) {
     }
 
     //보유 금액 설정
-    fun currencyAmountSet(currency: Currency, setAmount: Long, cause: String) {
+    fun currencyAmountSet(currency: Currency, setAmount: Long, cause: String): BooleanScript {
+        if (setAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
         val yaml = getCurrencyYaml(currency)
 
         yaml["amount"] = setAmount
         yaml.save(currency)
         log(currency, "[$cause] Set ${setAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
+
+        val script = "§e${player.name} §f님이 보유금액을 §e${setAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".script(plugin.prefix)
+        script.script(plugin.prefix).toPlayer(player)
+        return true.addScript(script)
     }
 
     //보유 금액 추가
-    fun currencyAmountAdd(currency: Currency, addAmount: Long, cause: String) {
+    fun currencyAmountAdd(currency: Currency, addAmount: Long, cause: String): BooleanScript {
+        if (addAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
         val amount = currencyAmount(currency)
         val yaml = getCurrencyYaml(currency)
 
@@ -57,6 +63,10 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Add ${addAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
+
+        val script = "§e${player.name} §f님이 §e${addAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".script(plugin.prefix)
+        script.script(plugin.prefix).toPlayer(player)
+        return true.addScript(script)
     }
 
     //보유 금액 감가
@@ -72,7 +82,9 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Remove ${removeAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
-        return true.addScript()
+        val script = "§e${player.name} §f님이 §e${removeAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".script(plugin.prefix)
+        script.script(plugin.prefix).toPlayer(player)
+        return true.addScript(script)
     }
 
     //지불

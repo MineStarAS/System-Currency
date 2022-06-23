@@ -11,13 +11,12 @@ import org.bukkit.plugin.java.JavaPlugin
 class Main : FunctionalJavaPlugin() {
     companion object {
         lateinit var head: Head
-        private lateinit var privatePlugin: FunctionalJavaPlugin
-        val plugin = privatePlugin
+        lateinit var plugin: FunctionalJavaPlugin
     }
 
     override fun onEnable() {
-        privatePlugin = this
-        privatePrefix = "§9Currency"
+        plugin = this
+        prefix = "§9Currency"
         head = Head(this)
         getCommand("currency")?.setExecutor(Command)
 

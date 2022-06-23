@@ -27,7 +27,7 @@ class PlayerCurrencyControlGUI(
         ;
     }
 
-    override val pl = Main.pl
+    override val plugin = Main.plugin
     override val gui = InventoryUtil.gui(1, "${targetPlayer.name} $currency 제어판")
 
     override fun displaying() {
