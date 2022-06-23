@@ -1,14 +1,14 @@
 package kr.kro.minestar.currency.function
 
-import kr.kro.minestar.currency.Main.Companion.pl
+import kr.kro.minestar.currency.Main.Companion.plugin
 import kr.kro.minestar.currency.data.Currency
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 
 
 class ConfigClass {
-    private val file = File(pl.dataFolder, "config.yml").apply {
-        if (!exists()) pl.saveResource("config.yml", false)
+    private val file = File(plugin.dataFolder, "config.yml").apply {
+        if (!exists()) plugin.saveResource("config.yml", false)
     }
 
     private val config = YamlConfiguration.loadConfiguration(file)
@@ -20,7 +20,7 @@ class ConfigClass {
         null,
         "null",
         "default",
-        -> pl.dataFolder
+        -> plugin.dataFolder
         else -> File(config.getString("dataSaveFolder")!!, "currency")
     }
 }

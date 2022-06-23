@@ -1,55 +1,59 @@
 package kr.kro.minestar.currency
 
-import kr.kro.minestar.currency.Main.Companion.pl
-import kr.kro.minestar.currency.Main.Companion.prefix
+import kr.kro.minestar.currency.data.Currency
+import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.currency.gui.CurrenciesGUI
 import kr.kro.minestar.currency.gui.PlayerPurseGUI
 import kr.kro.minestar.currency.value.PermissionValue
 import kr.kro.minestar.utility.command.Argument
 import kr.kro.minestar.utility.command.ArgumentPermission
 import kr.kro.minestar.utility.command.FunctionalCommand
+import kr.kro.minestar.utility.string.StringColor
+import kr.kro.minestar.utility.string.script
 import kr.kro.minestar.utility.string.toPlayer
-import kr.kro.minestar.utility.string.toServer
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.bukkit.permissions.Permission
 
 object Command : FunctionalCommand {
-    private enum class Arg(override val howToUse: String, override val permission: ArgumentPermission) : Argument {
-        test("", ArgumentPermission()),
-        test1("", PermissionValue.test),
+
+    enum class Arg(override val howToUse: String, override val permission: ArgumentPermission) : Argument {
+        test("", ArgumentPermission(plugin, "test")), //TODO 배포할 땐 삭제해라
+        send("<Currency> <PlayerName> <Amount>", ArgumentPermission(plugin, "send")),
 
         control("", PermissionValue.admin),
     }
 
-    private fun notHavePermission(player: Player) = "$prefix §c권한이 없습니다.".toPlayer(player)
+    override val plugin = Main.plugin
+    override val arguments = Arg.values()
 
-    override fun commanding(sender: CommandSender, cmd: Command, label: String, args: Array<out String>) {
-        if (sender !is Player) return
+    override fun commanding(data: FunctionalCommand.CommandData, args: Array<out String>) {
+        if (!data.valid) return
+        val player = data.player ?: return "플레이어가 아닙니다.".script(plugin.prefix, StringColor.RED).toSender(data.sender)
 
-        val per = Permission("kr.kro.minestar.currency.default")
-        sender.addAttachment(pl, "kr.kro.minestar.currency.default", true)
+        when (data.argument) {
+            null -> PlayerPurseGUI(player)
 
-        if (!PermissionValue.default.hasPermission(sender)) return notHavePermission(sender)
+            Arg.test -> { //TODO 배포할 땐 삭제해라
 
-        if (args.isEmpty()) {
-            PlayerPurseGUI(sender)
-            return
-        }
-
-        val arg = argument(Arg.values(), args) ?: return
-
-        if (!arg.isValid(args)) return "$prefix §c${arg.howToUse(label)}".toPlayer(sender)
-        if (!arg.permission.hasPermission(sender)) return notHavePermission(sender)
-
-        when (arg) {
-            Arg.test -> {
-                sender.permissionValue("kr.kro.minestar.currency.test")
-                "TEST".toPlayer(sender)
             }
-            Arg.control -> CurrenciesGUI(sender)
+
+            Arg.send -> {
+                val currency = Currency.getCurrency(args[1]) ?: return "알 수 없는 화폐 입니다.".warningScript(player)
+                val targetPlayer = Bukkit.getPlayer(args[2]) ?: return "플레이어를 찾을 수 없습니다.".warningScript(player)
+                val amount = args.last().toLongOrNull() ?: return "정수가 아닙니다.".warningScript(player)
+
+                if (amount <= 0) return "0 보다 커야합니다.".warningScript(player)
+
+                val playerPurse = PlayerPurse.getPlayerPurse(player)
+                    ?: return "지갑 불러오기에 실패 하였습니다.(재접속 후 다시 시도 해보시기 바랍니다.)".warningScript(player)
+
+                val booleanScript = playerPurse.currencyAmountSend(currency, amount, targetPlayer, player.name)
+                if (!booleanScript.boolean) booleanScript.script.toPlayer(player)
+            }
+
+            Arg.control -> CurrenciesGUI(player)
         }
         return
     }

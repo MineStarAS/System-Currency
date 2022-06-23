@@ -30,7 +30,7 @@ class CheckGUI(
         ;
     }
 
-    override val pl = Main.pl
+    override val pl = Main.plugin
     override val gui = InventoryUtil.gui(1, "확인창")
 
     override fun displaying() {

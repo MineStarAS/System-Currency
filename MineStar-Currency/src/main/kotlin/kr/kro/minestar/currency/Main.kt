@@ -4,19 +4,21 @@ import kr.kro.minestar.currency.data.Currency
 import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.currency.function.event.Event
 import kr.kro.minestar.utility.item.Head
+import kr.kro.minestar.utility.main.FunctionalJavaPlugin
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
-class Main : JavaPlugin() {
+class Main : FunctionalJavaPlugin() {
     companion object {
-        lateinit var pl: Main
-        const val prefix = "§f[§9Currency§f]"
         lateinit var head: Head
+        private lateinit var privatePlugin: FunctionalJavaPlugin
+        val plugin = privatePlugin
     }
 
     override fun onEnable() {
-        pl = this
-        head = Head(pl)
+        privatePlugin = this
+        privatePrefix = "§9Currency"
+        head = Head(this)
         getCommand("currency")?.setExecutor(Command)
 
         Event

@@ -1,10 +1,12 @@
 package kr.kro.minestar.currency.data
 
+import kr.kro.minestar.currency.Main.Companion.plugin
 import kr.kro.minestar.currency.value.FolderValue
 import kr.kro.minestar.utility.bool.BooleanScript
 import kr.kro.minestar.utility.bool.addScript
 import kr.kro.minestar.utility.number.addComma
-import kr.kro.minestar.utility.string.toServer
+import kr.kro.minestar.utility.string.script
+import kr.kro.minestar.utility.string.toPlayer
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
@@ -125,7 +127,10 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Send ${sendAmount.addComma()} to ${targetPlayer.name} [After Amount : ${currencyAmount(currency).addComma()}]")
-        return true.addScript()
+
+        val script = "§e${targetPlayer.name} §f님에게 §e${sendAmount.addComma()} §6$currency §f을/를 보냈습니다."
+        script.script(plugin.prefix).toPlayer(player)
+        return true.addScript(script)
     }
 
     //입금
@@ -142,7 +147,10 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Receive ${receiveAmount.addComma()} from ${sendPlayer.name} [After Amount : ${currencyAmount(currency).addComma()}]")
-        return true.addScript()
+
+        val script = "§e${player.name} §f님으로부터 §e${receiveAmount.addComma()} §6$currency §f을/를 받습니다."
+        script.script(plugin.prefix).toPlayer(player)
+        return true.addScript(script)
     }
 
     /**
@@ -178,6 +186,7 @@ class PlayerPurse(val player: Player) {
     }
 
     private fun dateKey(): String {
+        val file = File("")
         val format = SimpleDateFormat("yyyy-MM-dd.HH:mm:ss")
         return format.format(Calendar.getInstance().time)
     }
@@ -192,6 +201,7 @@ class PlayerPurse(val player: Player) {
             yaml.save(this)
         }
     }
+
     private fun getCurrencyLogFile(currency: Currency) = File(FolderValue.playerFolder(player), "$currency-log.yml").apply {
         if (!exists()) {
             val yaml = YamlConfiguration.loadConfiguration(this)
