@@ -4,7 +4,6 @@ import kr.kro.minestar.currency.Main
 import kr.kro.minestar.currency.data.Currency
 import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.currency.function.ConfigClass
-import kr.kro.minestar.currency.value.PermissionValue
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.addLore
@@ -12,7 +11,6 @@ import kr.kro.minestar.utility.item.display
 import kr.kro.minestar.utility.number.addComma
 import kr.kro.minestar.utility.string.remove
 import kr.kro.minestar.utility.string.toPlayer
-import kr.kro.minestar.utility.string.toServer
 import kr.kro.minestar.utility.string.unColor
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -74,7 +72,7 @@ class PlayerPurseGUI(override val player: Player) : GUI() {
                 if (!currency.canSend()) return "${Main.prefix} §c송금 할 수 없는 화폐입니다.".toPlayer(player)
                 PlayersGUI(player, currency, javaClass)
             }
-            ClickType.SHIFT_LEFT -> PlayerCurrencyLogGUI(player, currency)
+            ClickType.SHIFT_LEFT -> PlayerCurrencyLogListGUI(player, currency)
 
             else -> return
         }

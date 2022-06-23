@@ -21,11 +21,9 @@ class PlayerCurrencyControlGUI(
     override val player: Player, private val targetPlayer: Player, private val currency: Currency,
 ) : GUI() {
     private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        SET(0, 4, head.item(9999, Material.YELLOW_CONCRETE).display("§e[§f금액 설정§e]")),
-        ADD(0, 5, head.item(9999, Material.LIME_CONCRETE).display("§a[§f금액 추가§a]")),
-        REMOVE(0, 6, head.item(9999, Material.RED_CONCRETE).display("§c[§f금액 감가§c]")),
-
-        //TODO(머리 ID 수정 해야함)
+        SET(0, 4, head.item(9171, Material.YELLOW_CONCRETE).display("§e[§f금액 설정§e]")),
+        ADD(0, 5, head.item(9885, Material.LIME_CONCRETE).display("§a[§f금액 추가§a]")),
+        REMOVE(0, 6, head.item(9351, Material.RED_CONCRETE).display("§c[§f금액 감가§c]")),
         ;
     }
 

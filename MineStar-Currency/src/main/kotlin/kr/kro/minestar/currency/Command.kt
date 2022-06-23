@@ -1,5 +1,6 @@
 package kr.kro.minestar.currency
 
+import kr.kro.minestar.currency.Main.Companion.pl
 import kr.kro.minestar.currency.Main.Companion.prefix
 import kr.kro.minestar.currency.gui.CurrenciesGUI
 import kr.kro.minestar.currency.gui.PlayerPurseGUI
@@ -8,14 +9,17 @@ import kr.kro.minestar.utility.command.Argument
 import kr.kro.minestar.utility.command.ArgumentPermission
 import kr.kro.minestar.utility.command.FunctionalCommand
 import kr.kro.minestar.utility.string.toPlayer
+import kr.kro.minestar.utility.string.toServer
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.bukkit.permissions.Permission
 
 object Command : FunctionalCommand {
     private enum class Arg(override val howToUse: String, override val permission: ArgumentPermission) : Argument {
-        test("", PermissionValue.test),
+        test("", ArgumentPermission()),
+        test1("", PermissionValue.test),
 
         control("", PermissionValue.admin),
     }
@@ -24,6 +28,9 @@ object Command : FunctionalCommand {
 
     override fun commanding(sender: CommandSender, cmd: Command, label: String, args: Array<out String>) {
         if (sender !is Player) return
+
+        val per = Permission("kr.kro.minestar.currency.default")
+        sender.addAttachment(pl, "kr.kro.minestar.currency.default", true)
 
         if (!PermissionValue.default.hasPermission(sender)) return notHavePermission(sender)
 
@@ -38,7 +45,10 @@ object Command : FunctionalCommand {
         if (!arg.permission.hasPermission(sender)) return notHavePermission(sender)
 
         when (arg) {
-            Arg.test -> {}
+            Arg.test -> {
+                sender.permissionValue("kr.kro.minestar.currency.test")
+                "TEST".toPlayer(sender)
+            }
             Arg.control -> CurrenciesGUI(sender)
         }
         return

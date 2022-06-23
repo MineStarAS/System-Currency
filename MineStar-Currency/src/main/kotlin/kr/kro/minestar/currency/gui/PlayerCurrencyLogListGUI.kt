@@ -8,6 +8,7 @@ import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.*
 import kr.kro.minestar.utility.material.item
 import kr.kro.minestar.utility.string.toPlayer
+import kr.kro.minestar.utility.string.unColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -15,30 +16,30 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.ItemStack
 
-class PlayerCurrencyLogGUI(override val player: Player, private val currency: Currency, private val dayKey: String) : GUI() {
+class PlayerCurrencyLogListGUI(override val player: Player, private val currency: Currency) : GUI() {
 
-    private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
-        NEXT_PAGE(5, 8, Main.head.item(8899, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
-        PAGE_NUMBER(5, 4, Main.head.item(11504, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
+        private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
+            PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
+            NEXT_PAGE(5, 8, Main.head.item(8899, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
+            PAGE_NUMBER(5, 4, Main.head.item(11504, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
         ;
     }
 
     override val pl = Main.pl
-    override val gui = InventoryUtil.gui(6, "$currency $dayKey 기록")
+    override val gui = InventoryUtil.gui(6, "${player.name} $currency 기록")
 
     /**
      * Page function
      */
-    private val timeKeys = timeKeys().toList()
-    private fun timeKeys(): Set<String> {
-        val timeKeys = mutableListOf<String>()
+    private val dayKeys = dayKeys().toList()
+    private fun dayKeys(): Set<String> {
+
         val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return setOf()
-        val keys = playerPurse.getCurrencyLogYaml(currency).getKeys(true)
+        val keys = playerPurse.getCurrencyLogYaml(currency).getKeys(false)
 
-        for (key in keys) if (key.contains(dayKey)) if (key.split('.').size == 3) timeKeys.add(key)
+        keys.remove("amount")
 
-        return timeKeys.toSet()
+        return keys.toSet()
     }
 
     private var page = 0
@@ -50,7 +51,7 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
         return Pair(first, second)
     }
 
-    private fun isOverNumber() = timeKeys.size > pageSection().first
+    private fun isOverNumber() = dayKeys.size > pageSection().first
 
     /**
      * function
@@ -59,29 +60,24 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
         gui.clear()
         setItems(Button.values())
 
-        val logItem = Material.MOJANG_BANNER_PATTERN.item().flagAll()
-
-        val pageSection = pageSection()
-        if (timeKeys.isEmpty()) return
-
         if (page < 64) {
             val slot = Button.PAGE_NUMBER
             val pageNumberItem = slot.item.clone().amount(page + 1)
             gui.setItem(slot.getIndex(), pageNumberItem)
         }
 
+        val logItem = Material.MOJANG_BANNER_PATTERN.item().flagAll()
+
+        val pageSection = pageSection()
+
+        if (dayKeys.isEmpty()) return
+
+
         for ((slot, index) in (pageSection.first..pageSection.second).withIndex()) {
-            if (timeKeys.size <= index) break
+            if (dayKeys.size <= index) break
             val item = logItem.clone()
-            val timeKey = timeKeys[index]
-            item.display(timeKey.split('.')[1])
-
-            val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return
-            val yaml = playerPurse.getCurrencyLogYaml(currency)
-
-
-            val log = yaml.getString(timeKey) ?: continue
-            item.addLore(log)
+            val dayKey = dayKeys[index]
+            item.display(dayKey)
 
             gui.setItem(slot, item)
         }
@@ -118,10 +114,13 @@ class PlayerCurrencyLogGUI(override val player: Player, private val currency: Cu
 
             Button.PAGE_NUMBER -> {}
 
-            null -> {}
+            null -> {
+                val key = clickItem.display().unColor()
+                if (!dayKeys.contains(key)) return
+                PlayerCurrencyLogGUI(player, currency, key)
+            }
         }
     }
-
     init {
         openGUI()
     }

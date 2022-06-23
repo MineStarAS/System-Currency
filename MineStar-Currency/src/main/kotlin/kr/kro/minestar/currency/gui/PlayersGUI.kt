@@ -24,9 +24,9 @@ class PlayersGUI(
 ) : GUI() {
 
     private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-        PREVIOUS_PAGE(5, 0, head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
-        NEXT_PAGE(5, 8, head.item(11504, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
-        PAGE_NUMBER(5, 4, head.item(8899, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
+        PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
+        NEXT_PAGE(5, 8, Main.head.item(8899, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
+        PAGE_NUMBER(5, 4, Main.head.item(11504, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
         ;
     }
 
@@ -85,7 +85,7 @@ class PlayersGUI(
         when (getSlot(clickItem, Button.values())) {
             Button.NEXT_PAGE -> {
                 page++
-                if (isOverNumber()) {
+                if (!isOverNumber()) {
                     page--
                     return
                 }

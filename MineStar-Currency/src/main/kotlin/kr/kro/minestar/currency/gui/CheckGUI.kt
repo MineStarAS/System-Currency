@@ -37,11 +37,10 @@ class CheckGUI(
         gui.clear()
 
         val processItem = when (processType) {
-            ProcessType.SEND -> head.item(9382, Material.LIGHT_BLUE_CONCRETE)
-            ProcessType.SET -> head.item(9382, Material.YELLOW_CONCRETE)
-            ProcessType.ADD -> head.item(9382, Material.LIME_CONCRETE)
-            ProcessType.REMOVE -> head.item(9382, Material.RED_CONCRETE)
-            //TODO(머리 ID 수정 해야함)
+            ProcessType.SEND -> head.item(10143, Material.LIGHT_BLUE_CONCRETE)
+            ProcessType.SET -> head.item(9171, Material.YELLOW_CONCRETE)
+            ProcessType.ADD -> head.item(9885, Material.LIME_CONCRETE)
+            ProcessType.REMOVE -> head.item(9351, Material.RED_CONCRETE)
         }
         processItem.display("§9[§f처리 형태§9] $processType")
             .addLore(" ")
@@ -73,25 +72,31 @@ class CheckGUI(
                 when (processType) {
                     ProcessType.SEND -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return "$prefix §c자신의 지갑이 불러올 수 없습니다.".toPlayer(player)
-                        playerPurse.currencyAmountSand(currency, processAmount, targetPlayer, player.name)
-                        "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 보냈습니다.".toPlayer(player)
-                        "$prefix §e${player.name} §f님으로부터 §e${processAmount.addComma()} §6$currency §f을/를 받습니다.".toPlayer(targetPlayer)
+                        val booleanScript = playerPurse.currencyAmountSend(currency, processAmount, targetPlayer, player.name)
+                        if (!booleanScript.boolean) "$prefix §c${booleanScript.script}".toPlayer(player)
+                        else {
+                            "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 보냈습니다.".toPlayer(player)
+                            "$prefix §e${player.name} §f님으로부터 §e${processAmount.addComma()} §6$currency §f을/를 받습니다.".toPlayer(targetPlayer)
+                        }
                     }
                     ProcessType.SET -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountSet(currency, processAmount, player.name)
+
                         "$prefix §e${targetPlayer.name} §f님의 보유금액을 §e${processAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".toPlayer(player)
                         "$prefix §e${player.name} §f님이 보유금액을 §e${processAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".toPlayer(targetPlayer)
                     }
                     ProcessType.ADD -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountAdd(currency, processAmount, player.name)
+
                         "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".toPlayer(player)
                         "$prefix §e${player.name} §f님이 §e${processAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".toPlayer(targetPlayer)
                     }
                     ProcessType.REMOVE -> {
                         val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
                         playerPurse.currencyAmountRemove(currency, processAmount, player.name)
+
                         "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".toPlayer(player)
                         "$prefix §e${player.name} §f님이 §e${processAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".toPlayer(targetPlayer)
                     }

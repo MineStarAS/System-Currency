@@ -4,6 +4,7 @@ import kr.kro.minestar.currency.value.FolderValue
 import kr.kro.minestar.utility.bool.BooleanScript
 import kr.kro.minestar.utility.bool.addScript
 import kr.kro.minestar.utility.number.addComma
+import kr.kro.minestar.utility.string.toServer
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
@@ -106,31 +107,31 @@ class PlayerPurse(val player: Player) {
     }
 
     //송금
-    fun currencyAmountSand(currency: Currency, sandAmount: Long, targetPlayer: Player, cause: String): BooleanScript {
-        if (currency.canSend()) return false.addScript("송금할 수 없는 화폐입니다.")
-        if (sandAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
+    fun currencyAmountSend(currency: Currency, sendAmount: Long, targetPlayer: Player, cause: String): BooleanScript {
+        if (!currency.canSend()) return false.addScript("송금할 수 없는 화폐입니다.")
+        if (sendAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
 
         val amount = currencyAmount(currency)
         val yaml = getCurrencyYaml(currency)
 
-        val calcAmount = amount - sandAmount
+        val calcAmount = amount - sendAmount
         if (calcAmount < 0) return false.addScript("보유금액이 충분하지 않습니다.")
 
         val targetPurse = getPlayerPurse(targetPlayer)
             ?: return false.addScript("해당 플레이어는 오프라인 상태 이거나 존재하지 않습니다.")
-        val booleanScript = targetPurse.currencyAmountReceive(currency, sandAmount, player, cause)
+        val booleanScript = targetPurse.currencyAmountReceive(currency, sendAmount, player, cause)
         if (!booleanScript.boolean) return booleanScript
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Sand ${sandAmount.addComma()} to ${targetPlayer.name}(${targetPlayer.uniqueId}) [After Amount : ${currencyAmount(currency).addComma()}]")
+        log(currency, "[$cause] Send ${sendAmount.addComma()} to ${targetPlayer.name} [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
     //입금
     private fun currencyAmountReceive(currency: Currency, receiveAmount: Long, sendPlayer: Player, cause: String): BooleanScript {
         if (!player.isOnline) return false.addScript("해당 플레이어는 오프라인 상태입니다.")
-        if (currency.canSend()) return false.addScript("입금받을 수 없는 화폐입니다.")
+        if (!currency.canSend()) return false.addScript("입금받을 수 없는 화폐입니다.")
         if (receiveAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
 
         val amount = currencyAmount(currency)
@@ -140,7 +141,7 @@ class PlayerPurse(val player: Player) {
 
         yaml["amount"] = calcAmount
         yaml.save(currency)
-        log(currency, "[$cause] Receive ${receiveAmount.addComma()} from ${sendPlayer.name}(${sendPlayer.uniqueId}) [After Amount : ${currencyAmount(currency).addComma()}]")
+        log(currency, "[$cause] Receive ${receiveAmount.addComma()} from ${sendPlayer.name} [After Amount : ${currencyAmount(currency).addComma()}]")
         return true.addScript()
     }
 
@@ -167,7 +168,7 @@ class PlayerPurse(val player: Player) {
         fun key() = "${dateKey()}.$numberKey"
         while (yaml.contains(key())) numberKey++
 
-        yaml[key()] = "<${player.name} (${player.uniqueId})> $logString"
+        yaml[key()] = "<${player.name}> $logString"
         yaml.save(file)
     }
 
