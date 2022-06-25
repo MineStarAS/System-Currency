@@ -8,7 +8,5 @@ commands:
 permissions:
   kr.kro.minestar.currency.default:
     description:
-  kr.kro.minestar.currency.test:
-    description:
   kr.kro.minestar.currency.admin:
     description:

@@ -47,9 +47,7 @@ class PlayerPurse(val player: Player) {
         yaml.save(currency)
         log(currency, "[$cause] Set ${setAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
 
-        val script = "§e${player.name} §f님이 보유금액을 §e${setAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".script(plugin.prefix)
-        script.script(plugin.prefix).toPlayer(player)
-        return true.addScript(script)
+        return true.addScript("§e$cause §f이/가 보유금액을 §e${setAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.")
     }
 
     //보유 금액 추가
@@ -64,9 +62,7 @@ class PlayerPurse(val player: Player) {
         yaml.save(currency)
         log(currency, "[$cause] Add ${addAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
 
-        val script = "§e${player.name} §f님이 §e${addAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".script(plugin.prefix)
-        script.script(plugin.prefix).toPlayer(player)
-        return true.addScript(script)
+        return true.addScript("§e$cause §f이/가 §e${addAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.")
     }
 
     //보유 금액 감가
@@ -82,9 +78,8 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Remove ${removeAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
-        val script = "§e${player.name} §f님이 §e${removeAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".script(plugin.prefix)
-        script.script(plugin.prefix).toPlayer(player)
-        return true.addScript(script)
+        
+        return true.addScript("§e$cause §f이/가 §e${removeAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.")
     }
 
     //지불
@@ -101,6 +96,7 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Pay ${payAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
+        
         return true.addScript()
     }
 
@@ -117,12 +113,14 @@ class PlayerPurse(val player: Player) {
         yaml["amount"] = calcAmount
         yaml.save(currency)
         log(currency, "[$cause] Earn ${earnAmount.addComma()} [After Amount : ${currencyAmount(currency).addComma()}]")
+        
         return true.addScript()
     }
 
     //송금
     fun currencyAmountSend(currency: Currency, sendAmount: Long, targetPlayer: Player, cause: String): BooleanScript {
         if (!currency.canSend()) return false.addScript("송금할 수 없는 화폐입니다.")
+        if (player == targetPlayer) return false.addScript("자신에게 송금할 수 없습니다.")
         if (sendAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
 
         val amount = currencyAmount(currency)
@@ -140,15 +138,14 @@ class PlayerPurse(val player: Player) {
         yaml.save(currency)
         log(currency, "[$cause] Send ${sendAmount.addComma()} to ${targetPlayer.name} [After Amount : ${currencyAmount(currency).addComma()}]")
 
-        val script = "§e${targetPlayer.name} §f님에게 §e${sendAmount.addComma()} §6$currency §f을/를 보냈습니다."
-        script.script(plugin.prefix).toPlayer(player)
-        return true.addScript(script)
+        return true.addScript("§e${targetPlayer.name} §f님에게 §e${sendAmount.addComma()} §6$currency §f을/를 보냈습니다.")
     }
 
     //입금
     private fun currencyAmountReceive(currency: Currency, receiveAmount: Long, sendPlayer: Player, cause: String): BooleanScript {
         if (!player.isOnline) return false.addScript("해당 플레이어는 오프라인 상태입니다.")
         if (!currency.canSend()) return false.addScript("입금받을 수 없는 화폐입니다.")
+        if (player == sendPlayer) return false.addScript("자신에게 입금할 수 없습니다.")
         if (receiveAmount <= 0) return false.addScript("0 보다 작을 수 없습니다.")
 
         val amount = currencyAmount(currency)
@@ -198,7 +195,6 @@ class PlayerPurse(val player: Player) {
     }
 
     private fun dateKey(): String {
-        val file = File("")
         val format = SimpleDateFormat("yyyy-MM-dd.HH:mm:ss")
         return format.format(Calendar.getInstance().time)
     }

@@ -6,6 +6,7 @@ import kr.kro.minestar.currency.value.FolderValue
 import kr.kro.minestar.utility.collection.toStringList
 import kr.kro.minestar.utility.file.child
 import kr.kro.minestar.utility.item.clearDisplay
+import kr.kro.minestar.utility.item.cmData
 import kr.kro.minestar.utility.item.display
 import kr.kro.minestar.utility.material.item
 import kr.kro.minestar.utility.string.remove
@@ -23,13 +24,13 @@ class Currency {
 
         fun getCurrency(unit: String?): Currency? {
             unit ?: return null
-            for (currency in set) if (currency.unit == unit) return currency
+            for (currency in set) if (currency.unit.lowercase() == unit.lowercase()) return currency
             return null
         }
 
         fun contains(unit: String?): Boolean {
             unit ?: return false
-            for (currency in set) if (currency.unit == unit) return true
+            for (currency in set) if (currency.unit.lowercase() == unit.lowercase()) return true
             return false
         }
 
@@ -64,7 +65,8 @@ class Currency {
     private var icon: ItemStack
     fun icon() = icon.display(unit).clone()
     internal fun icon(item: ItemStack) {
-        item.clearDisplay()
+        val newItem = item.type.item().cmData(item.itemMeta.customModelData)
+        icon = newItem
         val yaml = getCurrencyYaml()
         yaml["icon"] = icon
         yaml.save()
@@ -139,6 +141,11 @@ class Currency {
 
     private fun getCurrencyYaml() = YamlConfiguration.loadConfiguration(getCurrencyFile())
     private fun YamlConfiguration.save() = save(getCurrencyFile())
+
+    fun delete() {
+        getCurrencyFile().delete()
+        unregisterCurrency(this)
+    }
 
     override fun toString() = unit
 }

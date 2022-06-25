@@ -4,12 +4,17 @@ import kr.kro.minestar.currency.Main
 import kr.kro.minestar.currency.Main.Companion.head
 import kr.kro.minestar.currency.data.Currency
 import kr.kro.minestar.currency.data.PlayerPurse
+import kr.kro.minestar.currency.function.ConfigClass
+import kr.kro.minestar.currency.value.PermissionValue
+import kr.kro.minestar.utility.bool.BooleanScript
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
 import kr.kro.minestar.utility.item.Slot
 import kr.kro.minestar.utility.item.addLore
 import kr.kro.minestar.utility.item.display
 import kr.kro.minestar.utility.number.addComma
+import kr.kro.minestar.utility.string.StringColor
+import kr.kro.minestar.utility.string.script
 import kr.kro.minestar.utility.string.toPlayer
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -31,7 +36,7 @@ class CheckGUI(
 
     override val plugin = Main.plugin
     override val gui = InventoryUtil.gui(1, "확인창")
-    private val prefix = plugin.prefix
+    private val prefix = "§6$currency"
 
     override fun displaying() {
         gui.clear()
@@ -67,40 +72,63 @@ class CheckGUI(
         if (e.click != ClickType.LEFT) return
 
         val slot = getSlot(clickItem, Button.values()) ?: return
-        when (slot) {
-            Button.ACCEPT -> {
-                when (processType) {
-                    ProcessType.SEND -> {
-                        val playerPurse = PlayerPurse.getPlayerPurse(player) ?: return "$prefix §c자신의 지갑이 불러올 수 없습니다.".toPlayer(player)
-                        val booleanScript = playerPurse.currencyAmountSend(currency, processAmount, targetPlayer, player.name)
-                        if (!booleanScript.boolean) "$prefix §c${booleanScript.script}".toPlayer(player)
-                    }
-                    ProcessType.SET -> {
-                        val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
-                        playerPurse.currencyAmountSet(currency, processAmount, player.name)
-
-                        "$prefix §e${targetPlayer.name} §f님의 보유금액을 §e${processAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다.".toPlayer(player)
-                    }
-                    ProcessType.ADD -> {
-                        val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
-                        playerPurse.currencyAmountAdd(currency, processAmount, player.name)
-
-                        "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다.".toPlayer(player)
-                    }
-                    ProcessType.REMOVE -> {
-                        val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer) ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
-                        playerPurse.currencyAmountRemove(currency, processAmount, player.name)
-
-                        "$prefix §e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다.".toPlayer(player)
-                    }
-                }
-            }
-            Button.CANCEL -> "$prefix §c송금을 취소 하였습니다.".toPlayer(player)
-        }
 
         try {
             player.closeInventory()
         } catch (_: Exception) {
+        }
+
+        when (slot) {
+            Button.ACCEPT -> {
+                when (processType) {
+                    ProcessType.SEND -> {
+                        if (!PermissionValue.default.hasPermission(player, ConfigClass().simplePermission))
+                            return "권한이 없습니다.".script(plugin.prefix, StringColor.RED).toPlayer(player)
+
+                        val playerPurse = PlayerPurse.getPlayerPurse(player)
+                            ?: return "$prefix §c자신의 지갑이 불러올 수 없습니다.".toPlayer(player)
+
+                        val booleanScript = playerPurse.currencyAmountSend(currency, processAmount, targetPlayer, player.name)
+                        if (!booleanScript.boolean) return booleanScript.script.script(prefix, StringColor.RED).toPlayer(player)
+                    }
+                    ProcessType.SET,
+                    ProcessType.ADD,
+                    ProcessType.REMOVE -> {
+                        if (!PermissionValue.admin.hasPermission(player, ConfigClass().simplePermission))
+                            return "권한이 없습니다.".script(plugin.prefix, StringColor.RED).toPlayer(player)
+
+                        val playerPurse = PlayerPurse.getPlayerPurse(targetPlayer)
+                            ?: return "$prefix §c대상의 지갑이 불러올 수 없습니다.".toPlayer(player)
+
+                        val booleanScript: BooleanScript
+                        when (processType) {
+                            ProcessType.SET -> {
+                                booleanScript = playerPurse.currencyAmountSet(currency, processAmount, player.name)
+                                if (booleanScript.boolean)
+                                    "§e${targetPlayer.name} §f님의 보유금액을 §e${processAmount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다."
+                                        .script(prefix).toPlayer(player)
+                            }
+                            ProcessType.ADD -> {
+                                booleanScript = playerPurse.currencyAmountAdd(currency, processAmount, player.name)
+                                if (booleanScript.boolean)
+                                    "§e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다."
+                                        .script(prefix).toPlayer(player)
+                            }
+                            ProcessType.REMOVE -> {
+                                booleanScript = playerPurse.currencyAmountRemove(currency, processAmount, player.name)
+                                if (booleanScript.boolean)
+                                    "§e${targetPlayer.name} §f님에게 §e${processAmount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다."
+                                        .script(prefix).toPlayer(player)
+                            }
+                            else -> return
+                        }
+
+                        if (booleanScript.boolean) booleanScript.script.script(prefix).toPlayer(targetPlayer)
+                        else booleanScript.script.script(prefix, StringColor.RED).toPlayer(player)
+                    }
+                }
+            }
+            Button.CANCEL -> "$processType §c을/를 취소 하였습니다.".toPlayer(player)
         }
     }
 

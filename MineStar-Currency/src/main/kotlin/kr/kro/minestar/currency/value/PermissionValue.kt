@@ -6,7 +6,6 @@ import kr.kro.minestar.utility.command.ArgumentPermission
 object PermissionValue {
 
     val default = ArgumentPermission(plugin, "default", false)
-    val test = ArgumentPermission(plugin, "test", true)
 
     /**
      * Admin permission

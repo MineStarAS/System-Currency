@@ -70,7 +70,7 @@ class PlayerPurseGUI(override val player: Player) : GUI() {
 
         when(e.click) {
             ClickType.LEFT -> {
-                if (!currency.canSend()) return "§c송금 할 수 없는 화폐입니다.".script(plugin.prefix).toPlayer(player)
+                if (!currency.canSend()) return "§c송금 할 수 없는 화폐입니다.".toPlayer(player)
                 PlayersGUI(player, currency, javaClass)
             }
             ClickType.SHIFT_LEFT -> PlayerCurrencyLogListGUI(player, currency)

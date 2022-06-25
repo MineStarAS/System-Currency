@@ -109,7 +109,7 @@ class PlayersGUI(
                 val playerUUID = meta.owningPlayer?.uniqueId ?: return
                 val targetPlayer = Bukkit.getPlayer(playerUUID) ?: return
 
-                if (!targetPlayer.isOnline) return "§c해당 플레이어는 오프라인 상태 입니다.".script(plugin.prefix).toPlayer(player)
+                if (!targetPlayer.isOnline) return "§c해당 플레이어는 오프라인 상태 입니다.".toPlayer(player)
 
                 when (backGUI) {
                     PlayerPurseGUI::class.java -> CalculatorGUI(player, targetPlayer, currency, ProcessType.SEND)

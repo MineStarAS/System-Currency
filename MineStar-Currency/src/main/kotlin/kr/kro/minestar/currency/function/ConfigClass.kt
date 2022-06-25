@@ -23,4 +23,6 @@ class ConfigClass {
         -> plugin.dataFolder
         else -> File(config.getString("dataSaveFolder")!!, "currency")
     }
+
+    val simplePermission = config.getBoolean("simplePermission")
 }
