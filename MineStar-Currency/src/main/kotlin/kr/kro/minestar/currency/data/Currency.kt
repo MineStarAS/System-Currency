@@ -65,7 +65,7 @@ class Currency {
     private var icon: ItemStack
     fun icon() = icon.display(unit).clone()
     internal fun icon(item: ItemStack) {
-        val newItem = item.type.item().cmData(item.itemMeta.customModelData)
+        val newItem = item.type.item().cmData(item.cmData())
         icon = newItem
         val yaml = getCurrencyYaml()
         yaml["icon"] = icon

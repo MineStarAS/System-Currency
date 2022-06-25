@@ -10,27 +10,43 @@ import kr.kro.minestar.utility.bool.BooleanScript
 import kr.kro.minestar.utility.command.*
 import kr.kro.minestar.utility.number.addComma
 import kr.kro.minestar.utility.string.script
-import kr.kro.minestar.utility.string.toPlayer
 import org.bukkit.Bukkit
 
 object Command : FunctionalCommand {
 
-    enum class Arg(override val howToUse: String, override val permission: ArgumentPermission) : Argument {
+    enum class Arg : Argument {
 //        test("", PermissionValue.test), //TODO 배포할 땐 주석처리
 
-        help("", ArgumentPermission()),
-        send("<Currency> <PlayerName> <Amount>", PermissionValue.default),
+        help(listOf("도움말"), "", ArgumentPermission()),
+        send(listOf("송금"), "<Currency> <PlayerName> <Amount>", PermissionValue.default),
 
-        control("", PermissionValue.admin),
-        set("<Currency> <PlayerName> <Amount>", PermissionValue.admin),
-        add("<Currency> <PlayerName> <Amount>", PermissionValue.admin),
-        remove("<Currency> <PlayerName> <Amount>", PermissionValue.admin),
+        control(listOf("컨트롤"), "", PermissionValue.admin),
+        set(listOf("지정"), "<Currency> <PlayerName> <Amount>", PermissionValue.admin),
+        add(listOf("추가"), "<Currency> <PlayerName> <Amount>", PermissionValue.admin),
+        remove(listOf("감가"), "<Currency> <PlayerName> <Amount>", PermissionValue.admin),
 
-        create("<CurrencyName>", PermissionValue.admin),
-        delete("<Currency>", PermissionValue.admin),
-        icon("<Currency>", PermissionValue.admin),
+        create(listOf("생성"), "<CurrencyName>", PermissionValue.admin),
+        delete(listOf("삭제"), "<Currency>", PermissionValue.admin),
+        icon(listOf("아이콘"), "<Currency>", PermissionValue.admin),
 
-        can("<Currency> [send/pay] [true/false]", PermissionValue.admin)
+        can(listOf("가능"), "<Currency> [send/pay] [true/false]", PermissionValue.admin),
+        ;
+
+        override val howToUse: String
+        override val permission: ArgumentPermission
+        override val aliases: List<String>?
+
+        constructor(howToUse: String, permission: ArgumentPermission) {
+            this.howToUse = howToUse
+            this.permission = permission
+            this.aliases = null
+        }
+
+        constructor(aliases: List<String>, howToUse: String, permission: ArgumentPermission) {
+            this.howToUse = howToUse
+            this.permission = permission
+            this.aliases = aliases
+        }
     }
 
     override val plugin = Main.plugin
@@ -83,24 +99,24 @@ object Command : FunctionalCommand {
                         booleanScript = playerPurse.currencyAmountSet(currency, amount, player.name)
                         if (booleanScript.boolean)
                             "§e${targetPlayer.name} §f님의 보유금액을 §e${amount.addComma()} §6$currency §f으/로 §e설정 §f하였습니다."
-                                .script(prefix).toPlayer(player)
+                                .script(prefix).finishScript(player)
                     }
                     Arg.add -> {
                         booleanScript = playerPurse.currencyAmountAdd(currency, amount, player.name)
                         if (booleanScript.boolean)
                             "§e${targetPlayer.name} §f님에게 §e${amount.addComma()} §6$currency §f을/를 §a추가 §f하였습니다."
-                                .script(prefix).toPlayer(player)
+                                .script(prefix).finishScript(player)
                     }
                     Arg.remove -> {
                         booleanScript = playerPurse.currencyAmountRemove(currency, amount, player.name)
                         if (booleanScript.boolean)
                             "§e${targetPlayer.name} §f님에게 §e${amount.addComma()} §6$currency §f을/를 §c감가 §f하였습니다."
-                                .script(prefix).toPlayer(player)
+                                .script(prefix).finishScript(player)
                     }
                     else -> return
                 }
 
-                if (booleanScript.boolean) booleanScript.script.script(prefix).toPlayer(player)
+                if (booleanScript.boolean) booleanScript.script.script(prefix).finishScript(player)
                 else booleanScript.script.warningScript(player)
             }
 
@@ -111,7 +127,7 @@ object Command : FunctionalCommand {
 
                 val currency = Currency(unit)
 
-                "§6$currency §f을/를 §a생성§f하였습니다.".script(plugin.prefix).toPlayer(player)
+                "§6$currency §f을/를 §a생성§f하였습니다.".finishScript(player)
             }
 
             Arg.delete -> {
@@ -119,7 +135,7 @@ object Command : FunctionalCommand {
 
                 currency.delete()
 
-                "§6$currency §f을/를 §c삭제§f하였습니다.".script(plugin.prefix).toPlayer(player)
+                "§6$currency §f을/를 §c삭제§f하였습니다.".finishScript(player)
             }
 
             Arg.icon -> {
@@ -132,7 +148,7 @@ object Command : FunctionalCommand {
 
                 currency.icon(item)
 
-                "§a아이템이 등록되었습니다.".script(plugin.prefix).toPlayer(player)
+                "§a아이템이 등록되었습니다.".finishScript(player)
             }
 
             Arg.can -> {
@@ -145,14 +161,14 @@ object Command : FunctionalCommand {
                         currency.canSend(boolean)
                         val booleanText = if (boolean) "§a가능"
                         else "§c불가"
-                        "§6$currency§f의 §b송금 §f가능 여부를 $booleanText§f로 설정하였습니다.".script(plugin.prefix).toPlayer(player)
+                        "§6$currency§f의 §b송금 §f가능 여부를 $booleanText§f로 설정하였습니다.".finishScript(player)
                     }
 
                     "pay" -> {
                         currency.canPay(boolean)
                         val booleanText = if (boolean) "§a가능"
                         else "§c불가"
-                        "§6$currency§f의 §b지불 §f가능 여부를 $booleanText§f로 설정하였습니다.".script(plugin.prefix).toPlayer(player)
+                        "§6$currency§f의 §b지불 §f가능 여부를 $booleanText§f로 설정하였습니다.".finishScript(player)
 
                     }
 
@@ -195,6 +211,10 @@ object Command : FunctionalCommand {
                 1 -> Currency.currencyUnitList().add(list, last)
             }
 
+            Arg.can -> when (lastIndex) {
+                1 -> Currency.currencyUnitList().add(list, last)
+                2, 3 -> argument.argList(lastIndex).add(list, last)
+            }
 
             Arg.control -> {}
         }

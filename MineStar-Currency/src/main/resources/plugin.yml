@@ -5,6 +5,7 @@ api-version: 1.18
 authors: [ MineStar ]
 commands:
   currency:
+    aliases: [ curr ]
 permissions:
   kr.kro.minestar.currency.default:
     description:

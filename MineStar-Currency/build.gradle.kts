@@ -4,6 +4,10 @@ version = "1.0.0"
 val copyPath = File("C:\\Users\\MineStar\\Desktop\\MC Server folder\\MCserver 1.18.1 - vanilla\\plugins")
 
 tasks {
+    compileJava {
+        options.encoding = "UTF-8"
+    }
+
     compileKotlin {
         kotlinOptions.jvmTarget = "17"
     }
@@ -15,6 +19,7 @@ tasks {
     }
 
     shadowJar {
+
         archiveBaseName.set(project.name)
         archiveClassifier.set("")
         archiveVersion.set(project.version.toString())

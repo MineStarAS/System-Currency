@@ -39,8 +39,8 @@ subprojects {
         //project_TL
 
         //MineStar
-        implementation("com.github.MineStarAS:Utility-API:1.2.3")
+//        implementation("com.github.MineStarAS:Utility-API:1.2.5")
 
-//        implementation(files("C:\\Users\\MineStar\\Desktop\\MC Server folder\\libs\\Utility-API-1.1.2.jar"))
+        implementation(files("C:\\Users\\MineStar\\Desktop\\MC Server folder\\libs\\Utility-API-1.2.6.jar"))
     }
 }
