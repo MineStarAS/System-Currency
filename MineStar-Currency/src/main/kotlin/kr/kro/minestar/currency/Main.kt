@@ -6,7 +6,7 @@ import kr.kro.minestar.currency.function.event.Event
 import kr.kro.minestar.utility.item.Head
 import kr.kro.minestar.utility.main.FunctionalJavaPlugin
 import org.bukkit.Bukkit
-import org.bukkit.plugin.java.JavaPlugin
+import org.bukkit.command.PluginCommand
 
 class Main : FunctionalJavaPlugin() {
     companion object {
@@ -34,4 +34,5 @@ class Main : FunctionalJavaPlugin() {
         } catch (_: Exception) {
         }
     }
+    
 }

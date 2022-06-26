@@ -19,7 +19,6 @@ tasks {
     }
 
     shadowJar {
-
         archiveBaseName.set(project.name)
         archiveClassifier.set("")
         archiveVersion.set(project.version.toString())
