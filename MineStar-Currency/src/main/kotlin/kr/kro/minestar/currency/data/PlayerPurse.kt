@@ -218,7 +218,7 @@ class PlayerPurse(val player: Player) {
     }
 
     private fun getCurrencyYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyFile(currency))
-    fun getCurrencyLogYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyLogFile(currency))
+    internal fun getCurrencyLogYaml(currency: Currency) = YamlConfiguration.loadConfiguration(getCurrencyLogFile(currency))
 
     private fun YamlConfiguration.save(currency: Currency) = save(getCurrencyFile(currency))
     private fun YamlConfiguration.logSave(currency: Currency) = save(getCurrencyLogFile(currency))

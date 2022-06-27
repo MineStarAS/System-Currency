@@ -5,9 +5,11 @@ import kr.kro.minestar.currency.data.Currency
 import kr.kro.minestar.currency.data.PlayerPurse
 import kr.kro.minestar.utility.gui.GUI
 import kr.kro.minestar.utility.inventory.InventoryUtil
-import kr.kro.minestar.utility.item.*
+import kr.kro.minestar.utility.item.Slot
+import kr.kro.minestar.utility.item.amount
+import kr.kro.minestar.utility.item.display
+import kr.kro.minestar.utility.item.flagAll
 import kr.kro.minestar.utility.material.item
-import kr.kro.minestar.utility.string.toPlayer
 import kr.kro.minestar.utility.string.unColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -18,10 +20,10 @@ import org.bukkit.inventory.ItemStack
 
 class PlayerCurrencyLogListGUI(override val player: Player, private val currency: Currency) : GUI() {
 
-        private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
-            PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
-            NEXT_PAGE(5, 8, Main.head.item(8899, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
-            PAGE_NUMBER(5, 4, Main.head.item(11504, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
+    private enum class Button(override val line: Int, override val number: Int, override val item: ItemStack) : Slot {
+        PREVIOUS_PAGE(5, 0, Main.head.item(8902, Material.BLUE_CONCRETE).display("§9[이전 페이지]")),
+        NEXT_PAGE(5, 8, Main.head.item(8899, Material.BLUE_CONCRETE).display("§7[다음 페이지]")),
+        PAGE_NUMBER(5, 4, Main.head.item(11504, Material.GRAY_CONCRETE).display("§9[현재 페이지]")),
         ;
     }
 
@@ -72,7 +74,6 @@ class PlayerCurrencyLogListGUI(override val player: Player, private val currency
 
         if (dayKeys.isEmpty()) return
 
-
         for ((slot, index) in (pageSection.first..pageSection.second).withIndex()) {
             if (dayKeys.size <= index) break
             val item = logItem.clone()
@@ -121,6 +122,7 @@ class PlayerCurrencyLogListGUI(override val player: Player, private val currency
             }
         }
     }
+
     init {
         openGUI()
     }
