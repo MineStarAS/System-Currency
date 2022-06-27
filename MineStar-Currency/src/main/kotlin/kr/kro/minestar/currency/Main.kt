@@ -34,5 +34,4 @@ class Main : FunctionalJavaPlugin() {
         } catch (_: Exception) {
         }
     }
-    
 }

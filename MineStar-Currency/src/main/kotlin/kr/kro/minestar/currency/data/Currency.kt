@@ -63,7 +63,7 @@ class Currency {
 
     //화폐 아이콘
     private var icon: ItemStack
-    fun icon() = icon.display(unit).clone()
+    internal fun icon() = icon.display(unit).clone()
     internal fun icon(item: ItemStack) {
         val newItem = item.type.item().cmData(item.cmData())
         icon = newItem
@@ -76,7 +76,7 @@ class Currency {
      * Restriction // 제한여부
      */
     //송금
-    fun canSend() = getCurrencyYaml().getBoolean("canSend")
+    internal fun canSend() = getCurrencyYaml().getBoolean("canSend")
     internal fun canSend(boolean: Boolean) {
         val yaml = getCurrencyYaml()
         yaml["canSend"] = boolean
@@ -84,7 +84,7 @@ class Currency {
     }
 
     //지불
-    fun canPay() = getCurrencyYaml().getBoolean("canPay")
+    internal fun canPay() = getCurrencyYaml().getBoolean("canPay")
     internal fun canPay(boolean: Boolean) {
         val yaml = getCurrencyYaml()
         yaml["canPay"] = boolean

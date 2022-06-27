@@ -1,10 +1,10 @@
+# If it's true, it simply distinguishes whether it is Op or not.
+# If it's false, it is classified according to permission.
+simplePermission : true
+
 # Enter the unit to be used as the default currency.
 mainCurrency : GOLD
 
 # Save data to plugin default data folder when "default" or "null" is input.
 # When entering the path value, create a "currency" folder in the folder location and save the data in the folder.
 dataSaveFolder : default
-
-# If it's true, it simply distinguishes whether it is Op or not.
-# If it's false, it is classified according to permission.
-simplePermission : true
