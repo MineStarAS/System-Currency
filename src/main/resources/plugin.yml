@@ -1,6 +1,6 @@
 name: ${project.name}
 version: ${project.version}
-main: kr.kro.minestar.currency.Main
+main: Main
 api-version: 1.18
 authors: [ MineStar ]
 commands:

@@ -7,8 +7,8 @@ import java.io.File
 
 
 class ConfigClass {
-    private val file = File(plugin.dataFolder, "config.yml").apply {
-        if (!exists()) plugin.saveResource("config.yml", false)
+    private val file = File(plugin.dataFolder, "resources/config.yml").apply {
+        if (!exists()) plugin.saveResource("resources/config.yml", false)
     }
 
     private val config = YamlConfiguration.loadConfiguration(file)
