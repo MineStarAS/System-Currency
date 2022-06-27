@@ -18,7 +18,7 @@ class Main : FunctionalJavaPlugin() {
         plugin = this
         prefix = "§9Currency"
         head = Head(this)
-        saveResource("resources/headItem.yml", true)
+        saveResource("headItem.yml", true)
         getCommand("currency")?.setExecutor(Command)
 
         Event
