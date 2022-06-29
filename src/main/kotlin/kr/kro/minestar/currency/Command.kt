@@ -148,7 +148,7 @@ object Command : FunctionalCommand {
 
                 currency.icon(item)
 
-                "§a아이템이 등록되었습니다.".finishScript(player)
+                "§a아이콘이 등록되었습니다.".finishScript(player)
             }
 
             Arg.can -> {
