@@ -22,11 +22,11 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    compileOnly(kotlin("stdlib"))
     compileOnly("net.kyori:adventure-api:4.11.0")
     compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
 
-    implementation("com.github.MineStarAS:Utility-API:1.2.6")
+    compileOnly("com.github.MineStarAS:Utility-API:1.2.6")
 }
 
 java {
