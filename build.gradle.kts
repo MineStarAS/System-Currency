@@ -9,7 +9,7 @@ val author = "MineStar"
 group = "kr.kro.minestar"
 version = "1.0.0"
 
-val plugins = File("C:\\Users\\MineStar\\Desktop\\MC Server folder\\MCserver 1.18.1 - vanilla\\plugins")
+val plugins = File("C:\\Users\\MineStar\\Desktop\\MC Server folder\\MCserver 1.19 - vanilla\\plugins")
 
 
 repositories {
@@ -22,11 +22,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly(kotlin("stdlib"))
+    implementation(kotlin("stdlib"))
     compileOnly("net.kyori:adventure-api:4.11.0")
     compileOnly("io.papermc.paper:paper-api:1.18.2-R0.1-SNAPSHOT")
 
-    compileOnly("com.github.MineStarAS:Utility-API:1.2.6")
+    implementation("com.github.MineStarAS:Utility-API:1.2.6")
 }
 
 java {
