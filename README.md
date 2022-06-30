@@ -8,6 +8,10 @@
 
 ## | 플러그인 정보
 
+* [Discord](https://discord.gg/jpRVrjd)
+* [Issues](https://github.com/Arcaniax-Development/HeadDatabase-API/issues)
+* [JavaDocs](https://javadoc.io/doc/com.arcaniax/HeadDatabase-API)
+
 이름 - Currency
 개발자 - MineStar
 저작권 - GNU General Public License v3.0
